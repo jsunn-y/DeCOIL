@@ -1,0 +1,25 @@
+{
+    "data_config": {
+        "name": "GB1",
+        "zs_names": [
+            "Triad-FixedBb-dG"
+        ],
+        "samples": 384,
+        "sites": 4,
+        "library": "simple_stochastic"
+    },
+    "opt_config": {
+        "type": "greedy",
+        "weight_type": ["full_coverage", "MSA_transformer"],
+        "dist_function": "manhattan",
+        "sigma": 2,
+        "seed": 42,
+        "iters": 1,
+        "samples": 240,
+        "n_mix": 1,
+        "directions": 1,  
+        "num_repeats": 24,
+        "num_workers": 88,
+        "top_fraction": 0.05
+    }
+}

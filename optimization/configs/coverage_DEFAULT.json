@@ -1,0 +1,25 @@
+{
+    "data_config": {
+        "name": "GB1",
+        "zs_names": [
+            "Triad-FixedBb-dG"
+        ],
+        "samples": 384,
+        "sites": 4
+    },
+    "opt_config": {
+        "type": "greedy",
+        "weight_type": ["full_coverage", "exp"],
+        "zs_exp": 1,
+        "dist_function": "hamming",
+        "seed": 42,
+        "sigma": 0.4,
+        "iters": 1,
+        "samples": 80,
+        "n_mix": 1,
+        "directions": 1,  
+        "num_repeats": 1,
+        "num_workers": 1,
+        "top_fraction": 0.25
+    }
+}
