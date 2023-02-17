@@ -1,6 +1,3 @@
-#import torch 
-#import torch.nn as nn
-import gc
 import functools
 from typing import Callable, Dict
 
@@ -9,7 +6,7 @@ from sklearn import ensemble
 from sklearn import linear_model
 import tensorflow as tf
 
-#code taken from https://github.com/google-research/slip/blob/main/models.py
+#code modified from https://github.com/google-research/slip/blob/main/models.py
 
 class KerasModelWrapper:
     """Wraps a Keras model to have the sklearn model interface."""

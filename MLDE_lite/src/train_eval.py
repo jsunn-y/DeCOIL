@@ -1,26 +1,16 @@
-
 import json
 import os
 import random
 import numpy as np
 import pandas as pd
-import pickle
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF
-from sklearn.utils import resample
 from sklearn.metrics import ndcg_score
-from sklearn.model_selection import train_test_split, KFold
-import xgboost as xgb
-#import matplotlib.pyplot as plt
-#import seaborn as sns
+from sklearn.model_selection import train_test_split
 from .models import *
 
 #comment these out if not using any degenerate codon libraries
-from dclo.src.oracle import Oracle
+from optimization.src.oracle import Oracle
 from ProtGraphR.src.Datasets import *
-from dclo.src.encoding_utils import *
+from optimization.src.encoding_utils import *
 
 #comment these out if not using graphs
 from tqdm.auto import tqdm

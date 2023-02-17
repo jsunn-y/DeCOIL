@@ -1,14 +1,7 @@
-from multiprocessing import Pool, current_process
-from multiprocessing.dummy import Pool as ThreadPool
-from concurrent.futures import ProcessPoolExecutor
-from unittest import result
+from multiprocessing import Pool
 import numpy as np
 import pandas as pd
 import random
-from scipy.spatial.distance import hamming
-#import matplotlib.pyplot as plt
-#from Bio.Seq import Seq
-from tqdm.auto import tqdm
 from .encoding_utils import *
 from .seqtools import *
 
@@ -32,23 +25,16 @@ class Oracle():
         self.n_repeats = opt_config["num_repeats"]
         self.num_workers = opt_config["num_workers"]
 
-        if 'min_coverage' in self.weight_type or 'full_coverage' in self.weight_type or 'top_coverage' in self.weight_type:
+        if 'full_coverage' in self.weight_type:
             self.sigma = opt_config["sigma"]
             self.dist_function = opt_config["dist_function"]
         
         self.samples_dict = {}
-        #for generating all initial codon possibilties (slower)
-        #self.full_dict = generate_mixedcodon2aaprobs_dict()
 
-        if data_config['name'] == 'GB1':
-            df_unsorted = pd.read_csv("/home/jyang4/repos/StARDUST/data/GB1/GB1_all_triad.csv")
-        elif data_config['name'] == 'TrpB':
-            df_unsorted = pd.read_csv("/home/jyang4/repos/StARDUST/data/tm9d8s/tm9d8s_all_evmutation.csv")
+        df_unsorted = pd.read_csv("data/" + data_config['name'])
 
         #normalized ranking
-        zs_name = 'Triad Score'
-        if "zs_name" in data_config:
-            zs_name = data_config['zs_name']
+        zs_name = data_config['zs_name']
 
         df = df_unsorted.sort_values(zs_name)
 
@@ -63,11 +49,8 @@ class Oracle():
         self.combo2zs_dict = dict(zip(df["Combo"].values, df["ranked_zs"].values))
         self.combo2zs_dict_top = dict(zip(df_top["Combo"].values, df_top["ranked_zs"].values))
         
-        if 'top_coverage' in self.weight_type:
-            self.dict = self.combo2zs_dict_top
-        else:
-            self.dict = self.combo2zs_dict
-            self.exp_dict = dict(zip(df["Combo"].values, np.power(df["ranked_zs"].values, self.opt_config["zs_exp"])))
+        self.dict = self.combo2zs_dict
+        self.exp_dict = dict(zip(df["Combo"].values, np.power(df["ranked_zs"].values, self.opt_config["zs_exp"])))
 
         if 'ESM2' in self.weight_type:
             embeddings = np.load('data/GB1/ESM2_all.npy')
@@ -79,12 +62,10 @@ class Oracle():
             embeddings = np.load('data/GB1/MSA_transformer.npy')
             self.embdict = dict(zip(df_unsorted["Combo"].values, embeddings))
         
-
     def encoding2aas(self, encoding_list, seed, n_samples = 0):
         '''
         converts a numerical encoding of a mixed base library (or a set of multiple mixed base libraries) into a sampling of protein sequences
         '''
-        #print(encoding.shape)
         
         if n_samples == 0: #default value, for training
             n_samples = self.n_samples
@@ -92,13 +73,10 @@ class Oracle():
         else: #non default value, for sampling afterward only
             repeats = 1
 
-        #print(encoding_list.shape)
         n_samples_each = int(n_samples/encoding_list.shape[1])
         n_samples_each_all = n_samples_each*repeats
         all_aaseqs = np.full((repeats, n_samples), 'VDGV')
        
-        #insert seed here?
-        #think about how best to use multiprocessing here
         for k, encoding in enumerate(encoding_list.T):
             encoding = encoding.reshape((self.sites, 12))
             choices = []
@@ -135,7 +113,7 @@ class Oracle():
         scores = []
         raw_scores = []
 
-        if 'min_coverage' in self.weight_type or 'full_coverage' in self.weight_type or 'top_coverage' in self.weight_type:
+        if 'full' in self.weight_type:
             uniques = np.unique(aaseqs)
             uniques2 = [seq for seq in uniques if '*' not in seq]
 
@@ -156,33 +134,11 @@ class Oracle():
                     raw_score = self.dict[seq]
                     score = raw_score
                     #for softening the effect of zs score (don't wnat too close to the bottom or top)
-                    if 'tiered' in self.weight_type:
-                        if score > 0.9:
-                            score = 0.9
-                        if score < 0.2:
-                            score = 0.2
-                    elif 'exp' in self.weight_type:
-                        #could presave these calculations in a dictionary, but calculating it probably takes a similar amount of time
-                        score = self.exp_dict[seq]
+
+                    score = self.exp_dict[seq]
                     
                     #sequence
                     if seq not in uniques:
-                        if 'simple' in self.weight_type:    
-                            pass 
-                        elif 'distance' in self.weight_type:
-                            if uniques == []:
-                                score *= (1 - np.exp(-self.sites))
-                            else:
-                                distances = []
-                                for pseq in uniques:
-                                    distances.append(hammingdistance(pseq, seq))
-                                
-                                distances = np.array(distances)
-                                min_distance = np.min(distances)
-                                score *= (1 - np.exp(-min_distance))
-
-                        #score =  raw_score * np.prod(1 - np.exp(-distances)) #change the strength with a factor in the exponent
-                        
                         uniques.append(seq)
                         scores.append(score)
                         raw_scores.append(raw_score)
@@ -318,27 +274,8 @@ class Oracle():
 
             distances = np.array(distances)
 
-            if 'min_coverage' in self.weight_type:
-                coverage = np.exp(-1 * np.min(distances)/1)
-            else:
-                coverage = 1 - np.prod(1 - np.exp(-distances/sigma))
+            coverage = 1 - np.prod(1 - np.exp(-distances/sigma))
 
             total_coverage += weight * coverage
             total_unweighted_coverage += coverage
         return total_coverage, total_unweighted_coverage
-        
-    # def make_seq(nucleotide):
-    #     self.seq += nucleotide
-
-    # #more efficient way to do this using itertools?
-    # def for_recursive(number_of_loops, range_list, execute_function, current_index=0, iter_list = []):
-
-    #     if iter_list == []:
-    #         iter_list = [0]*number_of_loops
-
-    #     if current_index == number_of_loops-1:
-    #         for iter_list[current_index] in range_list[current_index]:
-    #             execute_function(iter_list)
-    #     else:
-    #         for iter_list[current_index] in range_list[current_index]:
-    #             for_recursive(number_of_loops, iter_list = iter_list, range_list = range_list)
