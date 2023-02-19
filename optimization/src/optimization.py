@@ -65,19 +65,25 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
             all_vars = np.zeros((samples, 5, n_mix, n_directions + 1))
             
             if "library" in data_config:
-                #load optimized libraries
+                #load previously libraries
                 if isinstance(data_config['library'], str):
+                    #saved in encoding as npy
                     if '.npy' in data_config['library']:
                         Xt = np.load('optimization/saved/' + data_config['library'], allow_pickle=True)
+                    #saved in the results file of a previous campaign
                     else:
                         results = np.load('optimization/saved/' + data_config["library"] + '/results.npy', allow_pickle=True)
                         Xts = results.item()['Xts']
                         Xt = Xts[-1, :, :]
-                #load manual list as a starting point
+
+                #load manual list of letters as a starting point
                 else:
                     Xt = np.zeros((len(data_config['library']), sites*12, 1))
                     for i, seq in enumerate(data_config['library']):
                         Xt[i] = seq2encoding(seq).T
+                
+                assert Xt.shape[0] == opt_config['samples']
+                assert Xt.shape[2] == opt_config['n_mix']
             else:
                 Xt = get_init_samples(samples, n_mix, sites)
 
@@ -149,6 +155,7 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
 
             all_yt = all_means[:, 0, :, :]
             all_yt = all_yt.reshape(all_yt.shape[0], -1) 
+            all_yt_max_idx = np.argmax(all_yt, axis=1)
     
     results = {'means': traj_means, 'vars': traj_vars, 'Xts': traj_Xts}
     np.save(save_path + '/results.npy', results)

@@ -1,3 +1,0 @@
-Config file:	 /home/jyang4/repos/DeCOIL/dclo/configs/simple_exp010.json
-Save directory:	 /home/jyang4/repos/DeCOIL/dclo/saved/simple_exp010
-Device:	 cpu

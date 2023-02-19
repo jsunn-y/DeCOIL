@@ -25,7 +25,7 @@ class Oracle():
         self.n_repeats = opt_config["num_repeats"]
         self.num_workers = opt_config["num_workers"]
 
-        if 'full_coverage' in self.weight_type:
+        if 'full' in self.weight_type:
             self.sigma = opt_config["sigma"]
             self.dist_function = opt_config["dist_function"]
         
