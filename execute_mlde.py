@@ -1,20 +1,15 @@
 import argparse
 import json
 import os
-from xmlrpc.client import Boolean
 import sys
-
 import time
-from time import gmtime, strftime
 import numpy as np
-#import matplotlib.pyplot as plt
-
 from MLDE_lite.src.train_eval import *
 
 class Logger(object):
     def __init__(self):
         self.terminal = sys.stdout
-        self.log = open(os.path.join(save_dir, 'log.txt'), 'a')
+        self.log = open(os.path.join(save_dir, 'log.txt'), 'w')
    
     def write(self, message):
         self.terminal.write(message)
@@ -34,11 +29,6 @@ parser.add_argument('--config_file', type=str,
 parser.add_argument('--exp_name', type=str,
                     required=False, default='',
                     help='experiment name (default will be config folder name)')
-parser.add_argument('-d', '--device', type=int,
-                    required=False, default=0,
-                    help='device to run the experiment on')
-parser.add_argument('--extract', action='store_true',
-                    help='whether to extract the features')
 
 args = parser.parse_args()
 
@@ -62,14 +52,6 @@ if not os.path.exists(save_dir):
 
 print('Config file:\t {}'.format(config_file))
 print('Save directory:\t {}'.format(save_dir))
-
-# Get device ID
-if torch.cuda.is_available() and args.device >= 0:
-    assert args.device < torch.cuda.device_count()
-    device = 'cuda:{:d}'.format(args.device)
-else:
-    device = 'cpu'
-print('Device:\t {}'.format(device))
 
 # Load JSON config file
 with open(config_file, 'r') as f:
@@ -100,8 +82,6 @@ all_labelled = np.copy(all_ndcgs)
 
 all_top_seqs = np.full((len(encodings), len(model_classes), len(n_sampless), config['data_config']['n_solutions'], config['train_config']['n_subsets'], 500), 'VDGV')
 
-#right now this only works with 384 sequences
-all_input_seqs = np.full((len(encodings), len(model_classes), len(n_sampless), config['data_config']['n_solutions'], config['train_config']['n_subsets'], 384), 'VDGV')
 
 for i, encoding in enumerate(encodings):
     for j, model_class in enumerate(model_classes):
@@ -125,9 +105,8 @@ for i, encoding in enumerate(encodings):
                 n_samples = n_samples, 
                 model_config=config['model_config'],
                 data_config=config['data_config'],
-                train_config=config['train_config'],
-                device = args.device)
-            top_seqs, maxes, means, ndcgs, unique, labelled, input_seqs =  mlde_sim.train_all()
+                train_config=config['train_config'])
+            top_seqs, maxes, means, ndcgs, unique, labelled =  mlde_sim.train_all()
             
             all_top_seqs[i, j, k, :, :, :] = top_seqs
             all_ndcgs[i, j, k, :, :] = ndcgs
@@ -136,14 +115,11 @@ for i, encoding in enumerate(encodings):
             all_unique[i, j, k, :, :] = unique
             all_labelled[i, j, k, :, :] = labelled
 
-            if config['train_config']['input_seqs'] == True:
-                all_input_seqs[i, j, k, :, :, :] = input_seqs
-
             end = time.time()
             print('Time: ' + str(end-start))
 
 mlde_results = {}
-mlde_results['top_seqs'], mlde_results['maxes'], mlde_results['means'], mlde_results['ndcgs'], mlde_results['unique'], mlde_results['labelled'], mlde_results['input_seqs'] = all_top_seqs, all_maxes, all_means, all_ndcgs, all_unique, all_labelled, all_input_seqs
+mlde_results['top_seqs'], mlde_results['maxes'], mlde_results['means'], mlde_results['ndcgs'], mlde_results['unique'], mlde_results['labelled'] = all_top_seqs, all_maxes, all_means, all_ndcgs, all_unique, all_labelled
 
 np.save(os.path.join(save_dir, 'mlde_results.npy'), mlde_results)
 

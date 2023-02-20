@@ -1,5 +1,4 @@
 from typing import Callable, Dict
-
 import xgboost as xgb
 from sklearn import linear_model
 
@@ -54,8 +53,7 @@ def build_linear_model(model_kwargs):
             kwargs[key] = model_kwargs[key]
 
     model = linear_model.Ridge(alpha=kwargs['ridge_alpha'], fit_intercept=kwargs['ridge_fit_intercept'])
-    flatten_inputs = True
-    return model, flatten_inputs
+    return model
 
 def build_boosting_model(model_kwargs):
     # set defaults
@@ -78,12 +76,9 @@ def build_boosting_model(model_kwargs):
 
     #i think the other kwargs are defaults
     model = xgb.XGBRegressor(objective = kwargs['objective'],early_stopping_rounds = kwargs['early_stopping_rounds'])
-    flatten_inputs = True
-    return model, flatten_inputs
+    return model
 
 def get_model(model_name,
-              sequence_length: int,
-              vocab_size: int,
               model_kwargs: Dict):
     """Returns model, flatten_inputs."""
     if model_name == 'ridge':

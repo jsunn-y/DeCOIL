@@ -8,7 +8,7 @@ from optimization.src.optimization import run_greedy
 class Logger(object):
     def __init__(self):
         self.terminal = sys.stdout
-        self.log = open(os.path.join(save_dir, 'log.txt'), 'a')
+        self.log = open(os.path.join(save_dir, 'log.txt'), 'w')
    
     def write(self, message):
         self.terminal.write(message)
