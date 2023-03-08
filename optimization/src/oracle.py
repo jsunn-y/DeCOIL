@@ -2,8 +2,18 @@ from multiprocessing import Pool
 import numpy as np
 import pandas as pd
 import random
+from scipy.spatial import distance
 from .encoding_utils import *
 from .seqtools import *
+
+def hammingdistance(seq1, seq2):
+    return sum(s1 != s2 for s1, s2 in zip(seq1, seq2))
+
+def manhattandistance(a, b):
+    return np.sum(np.absolute(a-b))
+
+def euclideandistance(a, b):
+    return distance.euclidean(a, b)
 
 dist_function_dict = {
     'hamming' : hammingdistance,
@@ -53,13 +63,13 @@ class Oracle():
         self.exp_dict = dict(zip(df["Combo"].values, np.power(df["ranked_zs"].values, self.opt_config["zs_exp"])))
 
         if 'ESM2' in self.weight_type:
-            embeddings = np.load('data/GB1/ESM2_all.npy')
+            embeddings = np.load('data/ESM2_all.npy')
             self.embdict = dict(zip(df_unsorted["Combo"].values, embeddings))
         elif 'ESM1b' in self.weight_type:
-            embeddings = np.load('data/GB1/ESM1b_all.npy')
+            embeddings = np.load('data/ESM1b_all.npy')    
             self.embdict = dict(zip(df_unsorted["Combo"].values, embeddings))
         elif 'MSA_transformer' in self.weight_type:
-            embeddings = np.load('data/GB1/MSA_transformer.npy')
+            embeddings = np.load('data/MSA_transformer.npy')
             self.embdict = dict(zip(df_unsorted["Combo"].values, embeddings))
         
     def encoding2aas(self, encoding_list, seed, n_samples = 0):

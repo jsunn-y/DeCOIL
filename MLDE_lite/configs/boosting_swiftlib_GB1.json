@@ -1,0 +1,52 @@
+{
+    "data_config": {
+        "name": "GB1_fitness.csv",
+        "encoding": ["one-hot"],
+        "library": [
+            "DYANNSGSADNS",
+            "NHCNNSGGADNS",
+            "VNCNNSGGADNS",
+            "VWSNNSGGADNS",
+            "NNCNDSGGADNS",
+            "VHCNNSGGANNS",
+            "VHSNNSGGANNC",
+            "DYSNNSGGADNS",
+            "VHANNSGGANNS",
+            "NBCNNSGGADNS",
+            "NNSNNSGGANNS",
+            "NHSNNSGSADNS",
+            "NNSNDSGSADNS",
+            "VNSNNSGSADNS",
+            "VHSNNSGSANNS",
+            "NNSDNSGSADNS",
+            "DNSNNSGSADNS",
+            "NDSNNSGSADNS",
+            "NHSNDSGSANNS",
+            "NNSNNSGSANNC",
+            "NNSNNSKSCNNS",
+            "NNSNNSRSCNNS",
+            "NNSNNSKSCDNS",
+            "NHSNNSKSCNNS",
+            "NNSNDSKSCNNS",
+            "VNSNNSKSCNNS",
+            "NNSNNSGSANNS",
+            "NNSNNSRSCDNS",
+            "NNMNNSKSCNNS",
+            "NNSDNSKSCNNS",
+            "NNKNNKNNKNNK"
+        ],
+        "n_solutions": 31
+    },
+    "model_config": {
+        "name": ["boosting"]
+    },
+    "train_config": {
+        "seed": 42,
+        "n_samples": [384],
+        "n_splits": 5,
+        "n_subsets": 70,
+        "num_workers": 1,
+        "verbose": false,
+        "save_model": false
+    }
+}

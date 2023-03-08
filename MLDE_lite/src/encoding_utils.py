@@ -1,6 +1,6 @@
 import numpy as np
 
-ALL_AAS = ("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "X", "B", "Z", "-", '.')
+ALL_AAS = ("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y")
 num_tokens = len(ALL_AAS)
 
 # Copied from ProFET (Ofer & Linial, DOI: 10.1093/bioinformatics/btv345)

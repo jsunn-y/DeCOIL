@@ -5,7 +5,6 @@
             "one-hot"
         ],
         "library": "simple_exp1_GB1",
-        "zs_name": "Triad Score",
         "n_solutions": 240
     },
     "model_config": {
@@ -20,6 +19,7 @@
         ],
         "n_splits": 5,
         "n_subsets": 24,
+        "num_workers": 1,
         "verbose": false,
         "save_model": false
     }

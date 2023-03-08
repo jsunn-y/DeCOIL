@@ -1,8 +1,7 @@
 {
     "data_config": {
         "name": "GB1_all_triad.csv",
-        "zs_names": ["Triad Score"
-        ],
+        "zs_name": ["Triad Score"],
         "samples": 384,
         "sites": 4
     },
@@ -10,8 +9,6 @@
         "type": "greedy",
         "weight_type": ["simple"],
         "zs_exp": 1, 
-        "dist_function": "hamming",
-        "sigma": 0.4,
         "seed": 42,
         "iters": 1,
         "samples": 240,

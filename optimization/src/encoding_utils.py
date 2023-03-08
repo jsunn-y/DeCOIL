@@ -1,6 +1,5 @@
 import numpy as np
 from optimization.src.seqtools import *
-from scipy.spatial import distance
 
 index2base_dict = {
     0: "A",
@@ -95,14 +94,7 @@ def seq2encoding(seq):
         encoding[0, 4*i:4*(i+1)] = seq2encoding_dict[let]
     return encoding
 
-def hammingdistance(seq1, seq2):
-    return sum(s1 != s2 for s1, s2 in zip(seq1, seq2))
 
-def manhattandistance(a, b):
-    return np.sum(np.absolute(a-b))
-
-def euclideandistance(a, b):
-    return distance.euclidean(a, b)
 
 def allowed(encoding):
     encoding2 = np.copy(encoding)

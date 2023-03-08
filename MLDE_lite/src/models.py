@@ -52,22 +52,16 @@ def build_linear_model(model_kwargs):
         if key in model_kwargs:
             kwargs[key] = model_kwargs[key]
 
-    model = linear_model.Ridge(alpha=kwargs['ridge_alpha'], fit_intercept=kwargs['ridge_fit_intercept'])
+    #model = linear_model.Ridge(alpha=kwargs['ridge_alpha'], fit_intercept=kwargs['ridge_fit_intercept'])
+    model = linear_model.Ridge(**model_kwargs)
     return model
 
 def build_boosting_model(model_kwargs):
     # set defaults
-    default_kwargs = {"booster": "gbtree",
-                "tree_method": "exact",
-                "nthread": 1,
+    default_kwargs = {
                 "objective": "reg:tweedie",
-                "tweedie_variance_power": 1.5,
-                "eval_metric": "tweedie-nloglik@1.5",
-                "eta": 0.3,
-                    "max_depth": 6,
-                    "lambda": 1,
-                    "alpha": 0,
-                "early_stopping_rounds": 10
+                "early_stopping_rounds": 10,
+                "nthread": -1
                 }
     kwargs = default_kwargs.copy()
     for key in default_kwargs.keys():
@@ -75,7 +69,8 @@ def build_boosting_model(model_kwargs):
             kwargs[key] = model_kwargs[key]
 
     #i think the other kwargs are defaults
-    model = xgb.XGBRegressor(objective = kwargs['objective'],early_stopping_rounds = kwargs['early_stopping_rounds'])
+    #model = xgb.XGBRegressor(objective = kwargs['objective'],early_stopping_rounds = kwargs['early_stopping_rounds'])
+    model = xgb.XGBRegressor(**model_kwargs)
     return model
 
 def get_model(model_name,

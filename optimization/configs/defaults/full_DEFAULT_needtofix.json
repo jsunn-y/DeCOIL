@@ -1,9 +1,7 @@
 {
     "data_config": {
         "name": "GB1",
-        "zs_names": [
-            "Triad-FixedBb-dG"
-        ],
+        "zs_names": ["Triad-FixedBb-dG"],
         "samples": 384,
         "sites": 4
     },

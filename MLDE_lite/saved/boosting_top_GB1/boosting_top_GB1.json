@@ -25,6 +25,7 @@
         ],
         "n_splits": 5,
         "n_subsets": 70,
+        "num_workers": 1,
         "verbose": false,
         "save_model": false
     }

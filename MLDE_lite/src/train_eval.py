@@ -7,9 +7,9 @@ from tqdm.auto import tqdm
 from sklearn.metrics import ndcg_score
 from sklearn.model_selection import train_test_split
 from .models import *
+from .Datasets import Dataset
 
 from optimization.src.oracle import Oracle
-from MLDE_lite.src.Datasets import Dataset
 from optimization.src.encoding_utils import *
 
 def ndcg(y_true, y_pred):
@@ -22,6 +22,7 @@ class MLDESim():
         self.train_config = train_config
         self.model_config = model_config
         self.save_path = save_path
+        self.num_workers = train_config['num_workers']
 
         self.n_splits = train_config['n_splits']
         self.n_subsets = train_config['n_subsets']
@@ -55,9 +56,12 @@ class MLDESim():
                     config = json.load(f)
 
                 self.oracle = Oracle(config['data_config'], config['opt_config'], verbose = True)
+        
         #list of strings refers to list of encodings
         elif isinstance(self.library[0], str):
+            self.n_sites = int(len(self.library[0])/3)
             self.dclibrary = True
+
             self.final_encodings = np.zeros((len(self.library), self.n_sites*12, 1))
             for i, seq in enumerate(self.library):
                 self.final_encodings[i] = seq2encoding(seq).T
@@ -92,10 +96,11 @@ class MLDESim():
         self.dataset.encode_X(encoding = encoding)
 
         self.X_train_all = np.array(self.dataset.X)
+        np.save('/home/jyang4/repos/DeCOIL/one_hot.npy', self.X_train_all)
 
         self.y_train_all = np.array(self.dataset.y)
-        self.y_preds_all = np.zeros((self.dataset.N, self.n_subsets, self.n_splits)) 
-
+        self.y_preds_all = np.zeros((self.dataset.N, self.n_subsets, self.n_splits))
+        
         self.all_combos = self.dataset.all_combos
         self.n_sites = self.dataset.n_residues
         
@@ -131,9 +136,10 @@ class MLDESim():
                     self.labelled[k, j] = len(mask)
                     combos_train = []
 
-                    save_dir = os.path.join(self.save_path, str(k), str(j))
-                    if not os.path.exists(save_dir):
-                        os.makedirs(save_dir)
+                    if self.save_model:
+                        save_dir = os.path.join(self.save_path, str(k), str(j))
+                        if not os.path.exists(save_dir):
+                            os.makedirs(save_dir)
 
                     for i in range(self.n_splits):
                         if self.n_splits > 1:
@@ -168,20 +174,24 @@ class MLDESim():
                     
         pbar.close 
 
-        return self.top_seqs, self.maxes, self.means, self.ndcgs, self.unique, self.labelled, self.input_seqs
+        return self.top_seqs, self.maxes, self.means, self.ndcgs, self.unique, self.labelled
         
     def train_single(self, X_train, y_train, X_validation, y_validation):
         '''
         Trains a single supervised ML model.
         '''
-        clf = get_model(
-            self.model_class,
-            model_kwargs={})
+        
 
         if self.model_class == 'boosting':
+            clf = get_model(
+            self.model_class,
+            model_kwargs={'nthread': self.num_workers})
             eval_set = [(X_validation, y_validation)]
             clf.fit(X_train, y_train, eval_set=eval_set, verbose=False)
         else:
+            clf = get_model(
+            self.model_class,
+            model_kwargs={})
             clf.fit(X_train, y_train)
 
         y_preds = clf.predict(self.X_train_all)

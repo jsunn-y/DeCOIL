@@ -1,4 +1,4 @@
-from MLDE_lite.src.encoding_utils import *
+from .encoding_utils import *
 
 encoding_dict = {
     'one-hot' : generate_onehot,
@@ -15,7 +15,8 @@ class Dataset():
         self.sorted_data = self.data.sort_values(by='zs score', ascending=False)
         self.all_combos = self.data['Combo'].values
         #normalize fitness
-        self.y = self.data['fit']/np.max(self.data['fit'].values)
+        self.data['fit'] = self.data['fit']/np.max(self.data['fit'].values)
+        self.y = self.data['fit']
 
     def sample_top(self, cutoff, n_samples, seed):
         '''
