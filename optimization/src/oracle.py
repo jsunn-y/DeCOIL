@@ -7,12 +7,21 @@ from .encoding_utils import *
 from .seqtools import *
 
 def hammingdistance(seq1, seq2):
+    """
+    Returns the hamming distance between two sequences of equal length
+    """
     return sum(s1 != s2 for s1, s2 in zip(seq1, seq2))
 
 def manhattandistance(a, b):
+    """
+    Returns the manhattan distance between two sequences of equal length
+    """
     return np.sum(np.absolute(a-b))
 
 def euclideandistance(a, b):
+    """
+    Returns the euclidean distance between two sequences of equal length
+    """
     return distance.euclidean(a, b)
 
 dist_function_dict = {
@@ -22,7 +31,9 @@ dist_function_dict = {
 }
 
 class Oracle():
-    """Maps from a degenerate mixed base library to the zs score distribtuion. Maintains mappings that have already been calculated."""
+    """
+    Maps from a degenerate mixed base library to the values provided by the predictive model.
+    """
     def __init__(self, data_config, opt_config, verbose=False):
         self.opt_config = opt_config
         self.seed = opt_config["seed"]
@@ -71,11 +82,20 @@ class Oracle():
         elif 'MSA_transformer' in self.weight_type:
             embeddings = np.load('data/MSA_transformer.npy')
             self.embdict = dict(zip(df_unsorted["Combo"].values, embeddings))
+        elif 'georgiev' in self.weight_type:
+            embeddings = np.load('data/georgiev_all.npy')
+            self.embdict = dict(zip(df_unsorted["Combo"].values, embeddings))
         
-    def encoding2aas(self, encoding_list, seed, n_samples = 0):
-        '''
+    def encoding2aas(self, encoding_list: np.ndarray, seed: int, n_samples = 0) -> np.ndarray:
+        """
         converts a numerical encoding of a mixed base library (or a set of multiple mixed base libraries) into a sampling of protein sequences
-        '''
+        Args:
+            encoding_list: a numpy array of shape (n, n_sites * 12, n_mix) where n is the number of mixed base libraries
+            seed: the seed for the random number generator
+            n_samples: the number of samples to take from each mixed base library, 0 means take the default number of samples during training
+        Returns:
+            a numpy array of shape (n, n_samples) where n is the number of mixed base libraries
+        """
         
         if n_samples == 0: #default value, for training
             n_samples = self.n_samples
@@ -114,10 +134,12 @@ class Oracle():
 
         return all_aaseqs
 
-    def aas2zs(self, aaseqs):
+    def aas2zs(self, aaseqs: np.ndarray):
         """
         map all protein sequences to their corresponding zero shot scores
         report stats about the distribution
+        Args:
+            aaseqs: a numpy array of shape (n, ) where n is the number of mixed base libraries
         """
         uniques = []
         scores = []
@@ -182,25 +204,29 @@ class Oracle():
         
         return score_avg, unweighted_score_avg, raw_simple_score_avg, counts, diversity, aaseqs
     
-    # def encoding2zs(self, encoding):
-    #     all_aas = self.encoding2aas(encoding)
-    #     return self.aas2zs()
 
-    def sample(self, encodings, n_samples, seed):
-        '''
+    def sample(self, encodings: np.ndarray, n_samples: int, seed: int) -> np.ndarray:
+        """
         samples amino acid sequences from a library encoding
-        '''
+        Args:
+            encodings: a numpy array of shape (n, 12 * number of sites, n_mix) where n is the number of mixed base libraries
+            n_samples: the number of samples to take from each mixed base library
+            seed: the random seed to use for sampling
+        Outputs:
+            a numpy array of shape (n, n_samples) where n is the number of mixed base libraries
+        """
         return self.encoding2aas(encodings, seed=seed, n_samples=n_samples)
 
     def predict(self, encodings): 
-        '''
+        """
         Runs the oracle
 
-        Arguments:
+        Args:
             encodings: array of size [batch_size x  12 * number of sites x n_mix]
 
-        Outputs: the results of a single oracle prediction
-        '''
+        Outputs: 
+            the results of a single oracle prediction
+        """
         self.encodings = encodings
         self.batch_size = encodings.shape[0]
         
@@ -245,9 +271,9 @@ class Oracle():
     #     return self.encoding2zs(encoding)
 
     def predictor_all(self, encoding):
-        '''
+        """
         passes a given encoding (or mix of encodings) through the oracle
-        '''
+        """
         results = np.zeros((self.n_repeats, 5))
         all_seqs = np.full((self.n_repeats, self.n_samples), 'VDGV')
 

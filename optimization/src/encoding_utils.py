@@ -1,6 +1,9 @@
 import numpy as np
 from optimization.src.seqtools import *
 
+ALL_AAS = ("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "*")
+num_tokens = len(ALL_AAS)
+
 index2base_dict = {
     0: "A",
     1: "C",
@@ -46,14 +49,22 @@ encoding2choices_dict = {
 
 encoding2seq_dict = {v: k for k, v in seq2encoding_dict.items()}
 
-def encoding2seq(encoding):
+def encoding2seq(encoding: np.ndarray) -> str:
+    '''
+    Input: 12 bit encoding, corresponding to a single codon
+    Output: DNA sequence
+    '''
     encoding = encoding.reshape((-1, 4))
     seq = ""
     for row in encoding:
         seq += encoding2seq_dict[tuple(row)]
     return seq
 
-def generate_mixedcodon2aaprobs_dict():
+def generate_mixedcodon2aaprobs_dict() -> dict:
+    '''
+    Input: None
+    Output: dictionary all 12 bit codon encodings to dictionary from AAs to their corresponding probabilities
+    '''
     full_dict = {}
     encoding_choices = seq2encoding_dict.values()
     for choice1 in encoding_choices:
@@ -64,7 +75,7 @@ def generate_mixedcodon2aaprobs_dict():
                 full_dict[encoding] = aaprobs_dict
     return full_dict
 
-def mixedcodon2aaprobs(encoding):
+def mixedcodon2aaprobs(encoding: np.ndarray) -> dict:
     '''
     Input: 12 bit encoding, corresponding to a single codon
     Output: dictionary from AAs to their corresponding probabilities
@@ -88,15 +99,22 @@ def mixedcodon2aaprobs(encoding):
 
     return aa_probs
 
-def seq2encoding(seq):
+def seq2encoding(seq: str) -> np.ndarray:
+    '''
+    Input: DNA sequence as string
+    Output: 12 bit encoding, corresponding to a single codon
+    '''
     encoding = np.zeros((1, 4*len(seq)))
     for i, let in enumerate(seq):
         encoding[0, 4*i:4*(i+1)] = seq2encoding_dict[let]
     return encoding
 
 
-
-def allowed(encoding):
+def allowed(encoding: np.ndarray) -> bool:
+    '''
+    Input: 12 bit encoding, corresponding to a single codon
+    Output: Boolean, whether or not the encoding is allowed
+    '''
     encoding2 = np.copy(encoding)
     encoding2 = encoding2.reshape((-1, 4))
     for i, row in enumerate(encoding2):
@@ -106,12 +124,20 @@ def allowed(encoding):
     encoding2 = encoding2.flatten()
     return np.where(encoding2 != 2)[0]
 
-def get_library_size(encoding):
+def get_library_size(encoding: np.ndarray) -> int:
+    '''
+    Input: 12 bit encoding, corresponding to a single codon
+    Output: library size
+    '''
     encoding = encoding.reshape(12,4)
     sums = np.sum(encoding, axis = 1)
     return np.product(sums)
 
-def get_AA_encodings(all_encodings):
+def get_AA_encodings(all_encodings: np.ndarray):
+    '''
+    Input: n x 12 bit encodings, corresponding to n codons
+    Output: 
+    '''
     all_encodings2 = np.copy(all_encodings)
     AA_encodings = np.zeros((all_encodings.shape[0], 21*int(all_encodings.shape[1]/12), all_encodings.shape[2]))
     #AA library sizes
@@ -143,5 +169,3 @@ def get_AA_encodings(all_encodings):
     print(unique_encodings.shape)
     return library_sizes, indices, AA_encodings, unique_encodings, unique_AA_encodings
     
-ALL_AAS = ("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "*")
-num_tokens = len(ALL_AAS)

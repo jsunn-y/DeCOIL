@@ -4,6 +4,8 @@
 *.pt
 *.tar.gz
 *.h5
+*.svg
+outputs/
 ### END CUSTOM EXCLUSIONS ###
 
 

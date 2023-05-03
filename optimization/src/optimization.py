@@ -5,9 +5,15 @@ from .util import *
 import time
 
 def run_greedy(save_path, data_config, opt_config, verbose=True):
-    
     """
     Runs optimization with greedy single step walk
+    Args:
+        save_path: path to save results
+        data_config: dictionary of data configuration
+        opt_config: dictionary of optimization configuration
+        verbose: whether to print out results
+    Returns:
+        None
     """
     start = time.time()
 

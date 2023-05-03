@@ -168,7 +168,7 @@ class MLDESim():
                     means = np.mean(self.y_preds_all, axis = 2)
                     y_preds = means[:, j]
 
-                    self.maxes[k, j], self.means[k, j], self.top_seqs[k, j, :] = self.get_mlde_results(self.dataset.data, y_preds)
+                    self.maxes[k, j], self.means[k, j], self.top_seqs[k, j, :] = self.get_mlde_results(self.dataset.data, y_preds, uniques)
                     ndcg_value = ndcg(self.y_train_all, y_preds)
                     self.ndcgs[k, j] = ndcg_value
                     
@@ -181,7 +181,6 @@ class MLDESim():
         Trains a single supervised ML model.
         '''
         
-
         if self.model_class == 'boosting':
             clf = get_model(
             self.model_class,
@@ -198,9 +197,12 @@ class MLDESim():
         
         return y_preds, clf
     
-    def get_mlde_results(self, data2, y_preds):
+    def get_mlde_results(self, data2, y_preds, unique_seqs):
 
         data2['y_preds'] = y_preds
+        
+        ##optionally filter out the sequences in the training set
+        #data2 = data2[~data2['Combo'].isin(unique_seqs)]
 
         sorted  = data2.sort_values(by=['y_preds'], ascending = False)
 
@@ -210,5 +212,9 @@ class MLDESim():
 
         #save the top 500
         top_seqs = sorted.iloc[:500,:]['Combo'].values
+
+        ##for checking how many predictions are in the training set
+        #top_seqs_96 = sorted.iloc[:96,:]['Combo'].values
+        #print(len(np.intersect1d(np.array(unique_seqs), top_seqs_96)))
 
         return max, mean, top_seqs
