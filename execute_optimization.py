@@ -15,9 +15,6 @@ class Logger(object):
         self.log.write(message)  
 
     def flush(self):
-        # this flush method is needed for python 3 compatibility.
-        # this handles the flush command by doing nothing.
-        # you might want to specify some extra behavior here.
         pass    
 
 # Script starts here.
@@ -45,7 +42,6 @@ if not os.path.exists(save_dir):
 
 #Redirect output to log file
 sys.stdout = Logger()
-#sys.stdout = open(os.path.join(save_dir, 'log.txt'), 'w')
 
 print('Config file:\t {}'.format(config_file))
 print('Save directory:\t {}'.format(save_dir))

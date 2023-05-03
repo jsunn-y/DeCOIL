@@ -43,4 +43,3 @@ dependencies:
   - pip:
       - scipy==1.10.1
       - tqdm==4.64.1
-prefix: /home/jyang4/miniconda3/envs/DeCOIL

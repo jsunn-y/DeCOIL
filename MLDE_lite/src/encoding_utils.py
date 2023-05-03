@@ -41,7 +41,7 @@ def get_georgiev_params_for_seq(s):
 def seqs_to_georgiev(seqs):
     return np.stack([get_georgiev_params_for_seq(s) for s in seqs])
 
-def generate_onehot(seqs):
+def generate_onehot(seqs: list) -> np.ndarray:
     """
     Builds a onehot encoding for a given combinatorial space.
     """
@@ -62,10 +62,9 @@ def generate_onehot(seqs):
             onehot_array[i, j, onehot_ind] = 1
             
     # Return the flattened array
-    #X = onehot_array.reshape(onehot_array.shape[0],-1)
     return onehot_array
 
-def generate_georgiev(seqs):
+def generate_georgiev(seqs: list) -> np.ndarray:
     """
     Builds a georgiev encoding for a given combinatorial space.
     """

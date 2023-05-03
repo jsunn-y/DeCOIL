@@ -32,9 +32,14 @@ dist_function_dict = {
 
 class Oracle():
     """
-    Maps from a degenerate mixed base library to the values provided by the predictive model.
+    Maps from a degenerate codon library to the values provided by the predictive model.
     """
-    def __init__(self, data_config, opt_config, verbose=False):
+    def __init__(self, data_config: dict, opt_config: dict, verbose=False):
+        """
+        Args:
+            data_config: dictionary of data configuration
+            opt_config: dictionary of optimization configuration
+        """
         self.opt_config = opt_config
         self.seed = opt_config["seed"]
         self.verbose = verbose
@@ -90,13 +95,12 @@ class Oracle():
         """
         converts a numerical encoding of a mixed base library (or a set of multiple mixed base libraries) into a sampling of protein sequences
         Args:
-            encoding_list: a numpy array of shape (n, n_sites * 12, n_mix) where n is the number of mixed base libraries
+            encoding_list: a numpy array of shape (n_sites * 12, n_mix) where n is the number of degenerate codon libraries, n_sites is the number of amino acid sites, and n_mix is the number of templates per library
             seed: the seed for the random number generator
             n_samples: the number of samples to take from each mixed base library, 0 means take the default number of samples during training
         Returns:
-            a numpy array of shape (n, n_samples) where n is the number of mixed base libraries
+            a numpy array of shape (repeats, n_samples) where repeats is the number of repeated sampling desired
         """
-        
         if n_samples == 0: #default value, for training
             n_samples = self.n_samples
             repeats = self.n_repeats
@@ -107,19 +111,13 @@ class Oracle():
         n_samples_each_all = n_samples_each*repeats
         all_aaseqs = np.full((repeats, n_samples), 'VDGV')
        
+
         for k, encoding in enumerate(encoding_list.T):
             encoding = encoding.reshape((self.sites, 12))
             choices = []
             random.seed(seed)
 
             for j, row in enumerate(encoding):
-                #aaprobs_dict = self.full_dict[tuple(row)]
-                #row_tuple = tuple(row)
-                #if row_tuple in self.samples_dict.keys():
-                    #print(current_process().name)
-                    #choices.append(self.samples_dict[row_tuple]) #take based on the multiprocessing ID (need to make sure this distributes across all 80)
-                    #pass
-                #else:
                 aaprobs_dict = mixedcodon2aaprobs(row)
                 choices.append(random.choices(list(aaprobs_dict.keys()), weights=aaprobs_dict.values(), k=n_samples_each_all))
 
@@ -134,12 +132,14 @@ class Oracle():
 
         return all_aaseqs
 
-    def aas2zs(self, aaseqs: np.ndarray):
+    def aas2zs(self, aaseqs: np.ndarray) -> tuple:
         """
-        map all protein sequences to their corresponding zero shot scores
+        map all protein sequences to their corresponding zero shot scores and
         report stats about the distribution
         Args:
-            aaseqs: a numpy array of shape (n, ) where n is the number of mixed base libraries
+            aaseqs: a numpy array of samples amino acid sequences
+        Output:
+            Tuple containing stats about the sampled sequences
         """
         uniques = []
         scores = []
@@ -165,8 +165,6 @@ class Oracle():
                 if seq in self.dict.keys():
                     raw_score = self.dict[seq]
                     score = raw_score
-                    #for softening the effect of zs score (don't wnat too close to the bottom or top)
-
                     score = self.exp_dict[seq]
                     
                     #sequence
@@ -203,29 +201,14 @@ class Oracle():
             counts = len(unique_scores[unique_scores > self.cutoff])
         
         return score_avg, unweighted_score_avg, raw_simple_score_avg, counts, diversity, aaseqs
-    
 
-    def sample(self, encodings: np.ndarray, n_samples: int, seed: int) -> np.ndarray:
-        """
-        samples amino acid sequences from a library encoding
-        Args:
-            encodings: a numpy array of shape (n, 12 * number of sites, n_mix) where n is the number of mixed base libraries
-            n_samples: the number of samples to take from each mixed base library
-            seed: the random seed to use for sampling
-        Outputs:
-            a numpy array of shape (n, n_samples) where n is the number of mixed base libraries
-        """
-        return self.encoding2aas(encodings, seed=seed, n_samples=n_samples)
-
-    def predict(self, encodings): 
+    def predict(self, encodings: np.ndarray): 
         """
         Runs the oracle
-
         Args:
-            encodings: array of size [batch_size x  12 * number of sites x n_mix]
-
+            encodings: array of size [n_libraries x  12 * number of sites x n_mix] corresponding to all degenerate codon libraries being optimized
         Outputs: 
-            the results of a single oracle prediction
+            Tuple containing the results of a Oracle prediction
         """
         self.encodings = encodings
         self.batch_size = encodings.shape[0]
@@ -235,49 +218,29 @@ class Oracle():
         all_all_seqs = np.full((self.batch_size, self.n_repeats, self.n_samples), 'VDGV')
         
         with Pool(self.num_workers) as p:
-            
-            #all_results = p.map(self.predictor_all, [encodings]*self.repeats)
-
             for i, (result, all_seqs) in enumerate(p.map(self.predictor_all, list(self.encodings))):
                  results[i,:,:] = result
-                 #print(result)
                  all_all_seqs[i,:,:] = all_seqs
             
-            #could make this more efficient instead of unraveling all the strings
-            # for i, encoding in enumerate(encodings):
-            #     encoding = encoding.reshape((self.sites, 12))
-            #     for j, row in enumerate(encoding):
-            #         row = tuple(row)
-            #         if row not in self.samples_dict.keys():
-            #             self.samples_dict[row] = list(np.vectorize(lambda s: s[j])(all_all_seqs[i, :, :]).flatten())
         
         means = np.mean(results, axis = 1)
         vars =  np.var(results, axis = 1)
 
-        #all_results = np.zeros((self.batch_size, 2, self.repeats))
-
-        ### Other option is to run each row in parallel ###
-        #probably less efficient because each row is so quick
-        # with Pool(self.num_workers) as p:
-        #      all_results = p.map(self.predictor, [row for row in encodings])
-        
-        # all_results = np.array(all_results)
         if self.verbose:
             return means, vars, all_all_seqs
         else:
             return means, vars
 
-    # def predictor(self, encoding):
-    #     return self.encoding2zs(encoding)
 
-    def predictor_all(self, encoding):
+    def predictor_all(self, encoding: np.ndarray):
         """
-        passes a given encoding (or mix of encodings) through the oracle
+        Passes a single degenerate codon library through the oracle.
+        Args:
+            array of size [12 * number of sites x n_mix] corresponding to a single degenerate codon library being optimized
         """
         results = np.zeros((self.n_repeats, 5))
         all_seqs = np.full((self.n_repeats, self.n_samples), 'VDGV')
 
-        #print(encoding.shape)
         all_aaseqs = self.encoding2aas(encoding, seed=self.seed)
 
         for i, aaseqs in enumerate(all_aaseqs):
@@ -286,12 +249,15 @@ class Oracle():
             all_seqs[i, :] = np.array(output[5], dtype=str).reshape(1, -1)
     
         return results, all_seqs
-            #if encoding2seq(row) == 'WSHYYHMSWNYS':
-            #    exit()
     
-    def get_coverage(self, set, sigma=0.4):
+    def get_coverage(self, set: list, sigma=0.4):
         """
         calculates how well all_seqs (dictionary mapping strings to weights) is covered by set (a list of sequences)
+        Args:
+            set: a list of sequences
+            sigma: the sigma parameter for the coverage function
+        Output:
+            Tuple containing the coverage of the set and the unweighted coverage of the set
         """
         total_coverage = 0
         total_unweighted_coverage = 0

@@ -1,0 +1,27 @@
+{
+    "data_config": {
+        "name": "GB1_all_triad.csv",
+        "zs_name": "Triad Score",
+        "samples": 384,
+        "sites": 4,
+        "library": "simple_exp1_GB1"
+    },
+    "opt_config": {
+        "type": "greedy",
+        "weight_type": [
+            "full",
+            "MSA_transformer"
+        ],
+        "dist_function": "manhattan",
+        "zs_exp": 1,
+        "sigma": 0.01,
+        "seed": 42,
+        "iters": 1,
+        "samples": 240,
+        "n_mix": 1,
+        "directions": 1,
+        "num_repeats": 24,
+        "num_workers": 80,
+        "top_fraction": 0.05
+    }
+}

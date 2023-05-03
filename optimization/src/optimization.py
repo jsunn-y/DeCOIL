@@ -4,7 +4,7 @@ from .oracle import Oracle
 from .util import *
 import time
 
-def run_greedy(save_path, data_config, opt_config, verbose=True):
+def run_greedy(save_path: str, data_config: dict, opt_config: dict, verbose=True) -> dict:
     """
     Runs optimization with greedy single step walk
     Args:
@@ -13,7 +13,7 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
         opt_config: dictionary of optimization configuration
         verbose: whether to print out results
     Returns:
-        None
+        results: Dictionary of results
     """
     start = time.time()
 
@@ -32,12 +32,10 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
     np.random.seed(opt_config['seed'])
     oracle = Oracle(data_config, opt_config)
 
-    #is the last step not even saved?
     for t in range(iters):
         print('\n####  Iteration: ' + str(t+1) + '  ####')
         
         if t > 0:
-            #all_Xt_new = np.zeros((samples, sites*12, n_mix, n_directions + 1))
             all_Xt_new = np.copy(all_Xt)
             all_means_new = np.zeros((samples, 5, n_mix, n_directions + 1))
             all_vars_new = np.zeros((samples, 5, n_mix, n_directions + 1))
@@ -54,7 +52,6 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
             all_Xt = all_Xt_new
             Xt = all_Xt[:, :, :, 0].astype(int)
 
-            #check if more needs to be filled in here
             all_means_new[:, :, 0, 0], all_vars_new[:, :, 0, 0] = oracle.predict(Xt)
 
             all_means = all_means_new
@@ -109,7 +106,7 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
         traj_vars[t, :, :] = vars
         traj_Xts[t, :, :, :] = Xt
 
-        #need to fix this to print multiple sequences (right now it just sticks them next to each other)
+        #Only prints the first template in the library if multiple templates are mixed
         if verbose:
             for row, score, unweighted_score, raw_score, counts, diversity in zip(Xt[:,:,0], all_yt_max, all_means[:, 1, 0, 0], all_means[:, 2, 0, 0], all_means[:, 3, 0, 0], all_means[:, 4, 0, 0]):
                 print("%s --- Weighted: %.3f, Unweighted: %.3f, Raw Weighted Simple: %.3f, Top Counts: %3.0f, Unique: %3.0f" % (encoding2seq(row), score, unweighted_score, raw_score, counts, diversity))
@@ -120,16 +117,8 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
                 pbar.reset(n_directions*n_mix)
                 pbar.set_description('Predicting through oracle')
 
-                #should really only change one library at a time, not the best of both
-                
-                #np.random.seed(opt_config['seed'])
-
                 for k in range(n_mix):
-                    #all_means2 = np.copy(all_means)
-                    #all_vars2 = np.copy(all_vars)
-                    #all_Xt_test = np.copy(all_Xt_old)
-
-                    #make the mutations
+                    #make the proposed changes for hill climbing
                     for i, encodings in enumerate(Xt):
                         row = encodings[:, k]
 
@@ -144,13 +133,10 @@ def run_greedy(save_path, data_config, opt_config, verbose=True):
 
                             #for keeping track of all mutations
                             all_Xt[i, :, k, j+1] = row_new
-                            #for testing only mutations to one sequence at a time
-                            #all_Xt_test[i, :, k, j+1] = row_new
                     
                     #predict through the oracle
                     for j in range(n_directions):
                         #take all the originals but replace the row with the mutated on
-                        #need to check to make sure this makes sense
                         Xt_new = np.copy(all_Xt[:, :, :, 0])
                         Xt_new[:, :, k] = all_Xt[:, :, k, j+1]
 

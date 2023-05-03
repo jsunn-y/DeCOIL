@@ -51,8 +51,8 @@ encoding2seq_dict = {v: k for k, v in seq2encoding_dict.items()}
 
 def encoding2seq(encoding: np.ndarray) -> str:
     '''
-    Input: 12 bit encoding, corresponding to a single codon
-    Output: DNA sequence
+    Input: encoding of length 12 x n, corresponding to n degenerate codons
+    Output: degnerate codon sequence as string
     '''
     encoding = encoding.reshape((-1, 4))
     seq = ""
@@ -63,7 +63,7 @@ def encoding2seq(encoding: np.ndarray) -> str:
 def generate_mixedcodon2aaprobs_dict() -> dict:
     '''
     Input: None
-    Output: dictionary all 12 bit codon encodings to dictionary from AAs to their corresponding probabilities
+    Output: dictionary of all 12 bit codon encodings to dictionary from AAs to their corresponding probabilities
     '''
     full_dict = {}
     encoding_choices = seq2encoding_dict.values()
@@ -77,10 +77,10 @@ def generate_mixedcodon2aaprobs_dict() -> dict:
 
 def mixedcodon2aaprobs(encoding: np.ndarray) -> dict:
     '''
-    Input: 12 bit encoding, corresponding to a single codon
-    Output: dictionary from AAs to their corresponding probabilities
+    Input: 12 bit encoding, corresponding to a single degenerate codon
+    Output: dictionary mapping AAs to their corresponding probabilities, for this degenerate codon
     '''
-    encoding = encoding.reshape((-1, 4))
+    encoding = encoding.reshape((-1, 4)) #first dimension is 3?
 
     for i, row in enumerate(encoding):
         encoding[i, :] = row * 12 / sum(row) #normalized to probabilities (but scaled by 12 to remain as integer)
@@ -101,8 +101,8 @@ def mixedcodon2aaprobs(encoding: np.ndarray) -> dict:
 
 def seq2encoding(seq: str) -> np.ndarray:
     '''
-    Input: DNA sequence as string
-    Output: 12 bit encoding, corresponding to a single codon
+    Input: degenerate codon as a string
+    Output: encoding of length 12 x n, corresponding to n degenerate codons for a library
     '''
     encoding = np.zeros((1, 4*len(seq)))
     for i, let in enumerate(seq):
@@ -112,7 +112,7 @@ def seq2encoding(seq: str) -> np.ndarray:
 
 def allowed(encoding: np.ndarray) -> bool:
     '''
-    Input: 12 bit encoding, corresponding to a single codon
+    Input: encoding of length 12 x n, corresponding to n degenerate codons for a library
     Output: Boolean, whether or not the encoding is allowed
     '''
     encoding2 = np.copy(encoding)
@@ -126,17 +126,17 @@ def allowed(encoding: np.ndarray) -> bool:
 
 def get_library_size(encoding: np.ndarray) -> int:
     '''
-    Input: 12 bit encoding, corresponding to a single codon
+    Input: encoding of length 12 x n, corresponding to n degenerate codons for a library
     Output: library size
     '''
-    encoding = encoding.reshape(12,4)
+    encoding = encoding.reshape((-1,4))
     sums = np.sum(encoding, axis = 1)
     return np.product(sums)
 
 def get_AA_encodings(all_encodings: np.ndarray):
     '''
-    Input: n x 12 bit encodings, corresponding to n codons
-    Output: 
+    Input: (n_libraries x 12 x n) encodings, corresponding to n_libraries, each with n degenerate codons
+    Output: information about the amino acid distributions that correspond to each library
     '''
     all_encodings2 = np.copy(all_encodings)
     AA_encodings = np.zeros((all_encodings.shape[0], 21*int(all_encodings.shape[1]/12), all_encodings.shape[2]))
@@ -144,7 +144,6 @@ def get_AA_encodings(all_encodings: np.ndarray):
     library_sizes = []
 
     for i, encodings in enumerate(all_encodings):
-        #options = np.zeros((all_encodings.shape[2], 4))
 
         for k, encoding in enumerate(encodings.T):
             
@@ -160,12 +159,10 @@ def get_AA_encodings(all_encodings: np.ndarray):
         AA_encodings_sum = AA_encodings_sum.reshape(4, 21)
         options = np.count_nonzero(AA_encodings_sum, axis = 1)
         
-        #options = np.max(options, axis=1)
         library_sizes.append(np.product(options))
 
     unique_AA_encodings, indices = np.unique(AA_encodings, axis = 0, return_index=True)
 
     unique_encodings = all_encodings2[indices]
-    print(unique_encodings.shape)
     return library_sizes, indices, AA_encodings, unique_encodings, unique_AA_encodings
     

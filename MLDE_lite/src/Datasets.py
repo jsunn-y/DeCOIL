@@ -6,7 +6,7 @@ encoding_dict = {
 }
 
 class Dataset():
-    """Base class for labeled datasets."""
+    """Base class for labeled datasets linking sequence to fitness."""
 
     def __init__(self, dataframe):
 
@@ -18,10 +18,16 @@ class Dataset():
         self.data['fit'] = self.data['fit']/np.max(self.data['fit'].values)
         self.y = self.data['fit']
 
-    def sample_top(self, cutoff, n_samples, seed):
-        '''
+    def sample_top(self, cutoff: int, n_samples: int, seed: int) -> np.ndarray:
+        """
         Samples n_samples from the top triad scores based on a given cutoff in the ranking and a seed.
-        '''
+        Args:
+            cutoff : number cutoff in the ranking
+            n_samples : number of samples to take
+            seed: seed for reproducibility
+        Output:
+            1D np.ndarray of sampled sequences
+        """
         if self.N <= cutoff:
             sorted = self.data
         else:
@@ -31,7 +37,10 @@ class Dataset():
         np.random.seed(seed)
         return np.random.choice(options, n_samples, replace=False)
 
-    def encode_X(self, encoding):
+    def encode_X(self, encoding: str):
+        """
+        Encodes the input features based on the encoding type.
+        """
         if encoding == 'one-hot':
             self.X = np.array(encoding_dict[encoding](self.all_combos)) 
             self.X = self.X.reshape(self.X.shape[0],-1) 
@@ -39,5 +48,8 @@ class Dataset():
         self.input_dim = self.X.shape[1]
         self.n_residues = self.input_dim/len(ALL_AAS)
     
-    def get_mask(self, seqs):
+    def get_mask(self, seqs: list) -> list:
+        """
+        Returns an index mask for given sequences.
+        """
         return list(self.data[self.data['Combo'].isin(seqs)].index)

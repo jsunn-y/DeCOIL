@@ -6,6 +6,7 @@
 *.h5
 *.svg
 outputs/
+data/test.ipynb
 ### END CUSTOM EXCLUSIONS ###
 
 

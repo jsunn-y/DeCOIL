@@ -17,7 +17,18 @@ def ndcg(y_true, y_pred):
     return ndcg_score(y_true_normalized.reshape(1, -1), y_pred.reshape(1, -1))
 
 class MLDESim():
-    def __init__(self, save_path, encoding, model_class, n_samples, model_config, data_config, train_config) -> None:
+    """Class for training and evaluating MLDE models."""
+    def __init__(self, save_path: str, encoding: str, model_class: str, n_samples: int, model_config: dict, data_config: dict, train_config: dict) -> None:
+        """
+        Args:
+            save_path : path to save results
+            encoding : encoding type
+            model_class : model class
+            n_samples : number of samples to train on
+            model_config : model configuration
+            data_config : data configuration
+            train_config : training configuration
+        """
         self.data_config = data_config
         self.train_config = train_config
         self.model_config = model_config
@@ -65,8 +76,7 @@ class MLDESim():
             self.final_encodings = np.zeros((len(self.library), self.n_sites*12, 1))
             for i, seq in enumerate(self.library):
                 self.final_encodings[i] = seq2encoding(seq).T
-            #could make the sampling and coversion not require the oracle parameters
-            #should really exist outside the class
+
             with open('optimization/configs/defaults/DEFAULT.json', 'r') as f:
                 config = json.load(f)
 
@@ -125,7 +135,7 @@ class MLDESim():
                     #need to check if the seeding process works the same way
                     
                     if self.dclibrary == True:
-                        seqs = self.oracle.sample(sequences, self.n_samples, self.seed + (k*self.n_subsets+j)).T
+                        seqs = self.oracle.encoding2aas(sequences, self.seed + (k*self.n_subsets+j), self.n_samples).T
                         seqs = seqs.squeeze()
                     else:
                         seqs = self.dataset.sample_top(cutoff, self.n_samples, self.seed + (k*self.n_subsets+j))
@@ -176,11 +186,10 @@ class MLDESim():
 
         return self.top_seqs, self.maxes, self.means, self.ndcgs, self.unique, self.labelled
         
-    def train_single(self, X_train, y_train, X_validation, y_validation):
+    def train_single(self, X_train: np.ndarray, y_train: np.ndarray, X_validation: np.ndarray, y_validation: np.ndarray):
         '''
-        Trains a single supervised ML model.
+        Trains a single supervised ML model. Returns the predictions on the training set and the trained model.
         '''
-        
         if self.model_class == 'boosting':
             clf = get_model(
             self.model_class,
@@ -197,8 +206,14 @@ class MLDESim():
         
         return y_preds, clf
     
-    def get_mlde_results(self, data2, y_preds, unique_seqs):
-
+    def get_mlde_results(self, data2: pd.DataFrame, y_preds: np.ndarray, unique_seqs: list) -> tuple:
+        """
+        Calculates the MLDE results for a given set of predictions. Returns the max and mean of the top 96 sequences and the top 500 sequences.
+        Args:
+            data2: pandas dataframe with all sequences and fitness labels in the combinatorial space
+            y_preds: the predictions on the training data
+            unique_seqs: the unique sequences in the training data
+        """
         data2['y_preds'] = y_preds
         
         ##optionally filter out the sequences in the training set
