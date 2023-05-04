@@ -81,3 +81,6 @@ The configuration file should be located in `optimization/configs` with keys spe
 | save_model | boolean specifying whether or not to save the trained models| 
 
 Outputs will be saved in `MLDE_lite/saved` under a folder with the name as the configuration file. The results of MLDE simulations can be accessed in `mlde_results.npy` and example analyses are provided in `analysis.ipynb`.
+
+## Examples
+Relevant examples can be found under `/configs/examples` and `/saved/examples`
