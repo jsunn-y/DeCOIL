@@ -48,6 +48,12 @@ The configuration file should be located in `MLDE_lite/configs` with keys specif
 Outputs will be saved in `optimization/saved` under a folder with the name as the configuration file. The optimization trajectory can be accessed in `results.npy` and example analyses are provided in `analysis.ipynb`.
 
 ## MLDE Simulations
+To run MLDE simulations, the relevant anaconda environment can be installed from `MLDE_lite.yml`. To build this environment, run
+```
+cd ./DeCOIL
+conda env create -f MLDE_lite.yml
+conda activate MLDE_lite
+```
 The MLDE simulations demonstrated in our accompanying study can be reproduced below:
 ```
 python execute_optimization.py --config_file 'file_name.json'
