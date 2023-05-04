@@ -1,6 +1,6 @@
 # DeCOIL
 <img src="workflow.jpg">
-DEgnerate Codon Optimization for Informed Libraries (DeCOIL) is a computational method to optimize degnerate codos for synthesizing an informed combinatorial mutagenesis protein variant library, which is a critical step in a variety of machine learning-assisted protein engineering workflows. DeCOIL aims to bias a degenerate library toward desired proteins based on a predictive model from physics-based simulations, evolutionary knowledge, or machine-learning models while also providing diversity in the library.
+DEgnerate Codon Optimization for Informed Libraries (DeCOIL) is a computational method to optimize degenerate codons for synthesizing an informed combinatorial mutagenesis protein variant library, which is a critical step in a variety of machine learning-assisted protein engineering workflows. DeCOIL aims to bias a degenerate library toward desired proteins based on a predictive model from physics-based simulations, evolutionary knowledge, or machine-learning models while also providing diversity in the library.
 
 ## Installation
 To download, clone this repository
