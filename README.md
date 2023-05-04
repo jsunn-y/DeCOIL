@@ -20,7 +20,7 @@ python execute_optimization.py --config_file 'file_name.json'
 ```
 The configuration file should be located in `MLDE_lite/configs` with keys specified as follows:
 | Key (data config) | Description |
-|:-------|:----------------:|
+|:-----------|:----------------:|
 | name |filname for csv file containing sequences in the combinatorial space and corresponding predicted values. Must contain a column called 'Combo' which sqecifies the mutations at each site in the combinatorial library| 
 |zs_name | Name of the column in the csv file, which contains the relative value of each variant. By default, lower values are more desirable.| 
 |samples |Approximate screening size (number of sequences sampled from the library)| 
@@ -28,7 +28,7 @@ The configuration file should be located in `MLDE_lite/configs` with keys specif
 
 
 | Key (train config)| Description |
-|:-------|:----------------:|
+|:-----------|:----------------:|
 | type |type of optimization, only "greedy" is currently supported| 
 |weight_type | List containing either "simple" or "full" for step and diffuse coverage respectively. If "full" is specified, the encoding type can also be specified, default is onehot.| 
 |dist_function |Only required if weight_type contains "full". Can be "hamming", "manhattan", or "euclidean" | 
@@ -53,18 +53,18 @@ python execute_optimization.py --config_file 'file_name.json'
 ```
 The configuration file should be located in `optimization/configs` with keys specified as follows:
 | Key (data config)| Description |
-|:-------|:----------------:|
+|:-----------|:----------------:|
 | name |filname for csv file containing sequences in the combinatorial space and corresponding fitness values. Use "GB1_fitness.csv" for the GB1 dataset| 
 |encoding | List of encodings to use, only supports "one-hot"| 
 |library | Specifies how the training sequences should be sampled for each simulation. If a list of integers is provided, for an integer $a$, sequences will be sampled from the library containing the top $a$ sequences based on the Triad rank. If a string is specified, the optimized degenerate codon libraries corresponding to that folder in `optimization/saved` will be used| 
 |n_solutions |must correspond to the number of libraries specified in "library"|
 
 | Key (model config)| Description |
-|:-------|:----------------:|
+|:-----------|:----------------:|
 | name | list of model classes to be used. Only supports "boosting"| 
 
 | Key (train config)| Description |
-|:-------|:----------------:|
+|:-----------|:----------------:|
 | seed | seed for reproducibility| 
 | n_samples | list of integers specifying the number of sequences to sample from a library for the training set| 
 | n_splits | the number of models to be trained in the ensemble| 
