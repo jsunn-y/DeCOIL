@@ -26,6 +26,7 @@ The configuration file should be located in `MLDE_lite/configs` with keys specif
 |zs_name | Name of the column in the csv file, which contains the relative value of each variant. By default, lower values are more desirable.| 
 |samples |Approximate screening size (number of sequences sampled from the library)| 
 |sites |number of amino acid sites targeted in the combinatoral library|
+|library | optional argument. If a string, loads the final libraries from a previous optimization with the same configuration name. If a list of strings, each string in the list should specify a mixed base template to load.|
 
 
 | Key (train config)| Description |
