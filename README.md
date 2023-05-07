@@ -17,9 +17,9 @@ conda activate DeCOIL
 ## General Use
 DeCOIL can be executed on a personal computer using the following command:
 ```
-python execute_optimization.py --config_file 'file_name.json'
+python execute_DeCOIL.py --config_file 'file_name.json'
 ```
-The configuration file should be located in `MLDE_lite/configs` with keys specified as follows:
+The configuration file should be located in `DeCOIL/configs` with keys specified as follows:
 | Key (data config) | Description |
 |:-----------|:----------------:|
 | name |filname for csv file containing sequences in the combinatorial space and corresponding predicted values. Must contain a column called 'Combo' which sqecifies the mutations at each site in the combinatorial library| 
@@ -52,7 +52,7 @@ Raw Weighted Simple (weighted step coverage with p=1)
 Top Counts: Number of unique variants sampled by the library that lie in "top_fraction"
 Unique: Number of unique variants sampled by the library that are not stop codons
 
-Outputs will be saved in `optimization/saved` under a folder with the name as the configuration file. The optimization trajectory can be accessed in `results.npy` and example analyses are provided in `analysis.ipynb`.
+Outputs will be saved in `DeCOIL/saved` under a folder with the name as the configuration file. The optimization trajectory can be accessed in `results.npy` and example analyses are provided in `analysis.ipynb`.
 
 ## MLDE Simulations
 To run MLDE simulations, the relevant anaconda environment can be installed from `MLDE_lite.yml`. To build this environment, run
@@ -65,7 +65,7 @@ The MLDE simulations demonstrated in our accompanying study can be reproduced be
 ```
 python execute_optimization.py --config_file 'file_name.json'
 ```
-The configuration file should be located in `optimization/configs` with keys specified as follows:
+The configuration file should be located in `MLDE_lite/configs` with keys specified as follows:
 | Key (data config)| Description |
 |:-----------|:----------------:|
 | name |filname for csv file containing sequences in the combinatorial space and corresponding fitness values. Use "GB1_fitness.csv" for the GB1 dataset| 
