@@ -1,12 +1,14 @@
 ### CUSTOM EXCLUSIONS ###
-*.npy
 *.model_params
 *.pt
 *.tar.gz
 *.h5
 *.svg
 outputs/
-data/test.ipynb
+data/ESM1b_all.npy
+data/ESM2_all.npy
+data/georgiev_all.npy
+data/MSA_transformer.npy
 ### END CUSTOM EXCLUSIONS ###
 
 
