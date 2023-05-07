@@ -1,2 +1,0 @@
-Config file:	 /home/jyang4/repos/DeCOIL/optimization/configs/simple_exp1_GB1_test.json
-Save directory:	 /home/jyang4/repos/DeCOIL/optimization/saved/simple_exp1_GB1_test
