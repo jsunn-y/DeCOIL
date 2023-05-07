@@ -1,5 +1,5 @@
 import numpy as np
-from optimization.src.seqtools import *
+from .seqtools import *
 
 ALL_AAS = ("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "*")
 num_tokens = len(ALL_AAS)

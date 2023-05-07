@@ -9,8 +9,8 @@ from sklearn.model_selection import train_test_split
 from .models import *
 from .Datasets import Dataset
 
-from optimization.src.oracle import Oracle
-from optimization.src.encoding_utils import *
+from DeCOIL.src.oracle import Oracle
+from DeCOIL.src.encoding_utils import *
 
 def ndcg(y_true, y_pred):
     y_true_normalized = y_true - min(y_true)

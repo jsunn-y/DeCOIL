@@ -3,7 +3,7 @@ import json
 import os
 import sys
 
-from optimization.src.optimization import run_greedy
+from DeCOIL.src.optimization import run_greedy
 
 class Logger(object):
     def __init__(self):
@@ -28,13 +28,13 @@ parser.add_argument('--exp_name', type=str,
 args = parser.parse_args()
 
 # Get JSON config file
-config_file = os.path.join(os.getcwd(), 'optimization', 'configs', args.config_file)
+config_file = os.path.join(os.getcwd(), 'DeCOIL', 'configs', args.config_file)
 
 # Get experiment name
 exp_name = args.exp_name if len(args.exp_name) > 0 else args.config_file[:-5]
 
 # Get save directory
-save_dir = os.path.join(os.getcwd(), 'optimization', 'saved', exp_name)
+save_dir = os.path.join(os.getcwd(), 'DeCOIL', 'saved', exp_name)
 
 # Create save folder
 if not os.path.exists(save_dir):
