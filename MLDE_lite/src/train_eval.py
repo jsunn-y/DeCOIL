@@ -106,7 +106,7 @@ class MLDESim():
         self.dataset.encode_X(encoding = encoding)
 
         self.X_train_all = np.array(self.dataset.X)
-        np.save('/home/jyang4/repos/DeCOIL/one_hot.npy', self.X_train_all)
+        #np.save('/home/jyang4/repos/DeCOIL/one_hot.npy', self.X_train_all)
 
         self.y_train_all = np.array(self.dataset.y)
         self.y_preds_all = np.zeros((self.dataset.N, self.n_subsets, self.n_splits))
