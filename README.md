@@ -44,6 +44,12 @@ The configuration file should be located in `MLDE_lite/configs` with keys specif
 | num_workers | number of processors to use|
 | top_fraction | fraction of sequences in a certain percentile of predictor scores, for logging purposes only|
 
+After each iteration of optimization, average stats for each library will be printed.
+Weighted (weighted coverage)
+Unweighted (unweighted coverage)
+Raw Weighted Simple (weighted step coverage with p=1)
+Top Counts: Number of unique variants sampled by the library that lie in "top_fraction"
+Unique: Number of unique variants sampled by the library that are not stop codons
 
 Outputs will be saved in `optimization/saved` under a folder with the name as the configuration file. The optimization trajectory can be accessed in `results.npy` and example analyses are provided in `analysis.ipynb`.
 
