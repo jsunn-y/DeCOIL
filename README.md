@@ -63,7 +63,7 @@ conda activate MLDE_lite
 ```
 The MLDE simulations demonstrated in our accompanying study can be reproduced below:
 ```
-python execute_optimization.py --config_file 'file_name.json'
+python execute_mlde.py --config_file 'file_name.json'
 ```
 The configuration file should be located in `MLDE_lite/configs` with keys specified as follows:
 | Key (data config)| Description |
